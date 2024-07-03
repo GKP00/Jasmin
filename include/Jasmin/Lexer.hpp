@@ -14,6 +14,21 @@ class Token
     enum class TokenType
     {
       Symbol,
+
+      //Directives
+      DCatch,
+      DClass,
+      DEnd,
+      DField,
+      DImplements,
+      DInterface,
+      DLimit,
+      DLine,
+      DMethod,
+      DSource,
+      DSuper,
+      DThrows,
+      DVar,
     };
 
     struct MetaInfo
@@ -28,6 +43,7 @@ class Token
     const MetaInfo Info;
 };
 
+std::ostream& operator<<(std::ostream&, const Token::TokenType&);
 
 class Lexer 
 {
@@ -45,6 +61,8 @@ class Lexer
     size_t         CurrentFileOffset() const;
 
   private:
+    Token lexDirective();
+
     char get();
     char get(char);
     char peek() const;
@@ -58,10 +76,9 @@ class Lexer
 
     void skipWhitespaceAndComments();
     void skipWhitespace();
-    void skipComments();
+    void skipComment();
 
-    Token makeToken(Token::TokenType, std::string) const;
-    Token makeToken(Token::TokenType, char) const;
+    Token makeToken(Token::TokenType, std::string="") const;
 
     static bool isSpace(char c) { return std::isspace(c); }
 

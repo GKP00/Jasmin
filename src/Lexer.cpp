@@ -2,7 +2,35 @@
 
 #include <fmt/core.h>
 
-using namespace Jasmin;
+
+namespace Jasmin
+{
+
+using TT = Token::TokenType;
+
+std::ostream& operator<<(std::ostream& out, const Token::TokenType& type)
+{
+  switch(type)
+  {
+    case TT::Symbol: out << "Symbol"     ; break;
+
+    case TT::DCatch:      out << "DCatch"     ; break;
+    case TT::DClass:      out << "DClass"     ; break;
+    case TT::DEnd:        out << "DEnd"       ; break;
+    case TT::DField:      out << "DField"     ; break;
+    case TT::DImplements: out << "DImplements"; break;
+    case TT::DInterface:  out << "DInterface" ; break;
+    case TT::DLimit:      out << "DLimit"     ; break;
+    case TT::DLine:       out << "DLine"      ; break;
+    case TT::DMethod:     out << "DMethod"    ; break;
+    case TT::DSource:     out << "DSource"    ; break;
+    case TT::DSuper:      out << "DSuper"     ; break;
+    case TT::DThrows:     out << "DThrows"    ; break;
+    case TT::DVar:        out << "DVar"       ; break;
+  }
+
+  return out;
+}
 
 bool Lexer::HasMore()
 {
@@ -15,9 +43,15 @@ Token Lexer::LexNext()
   if(!this->HasMore())
     throw error(fmt::format("LexNext called after empty input stream"));
 
-  throw error("LexNext() unimplemented");
+  if(consumeNextCharIf('.'))
+    return this->lexDirective();
 
-  return this->makeToken(Token::TokenType::Symbol, "unimplemented");
+  std::string symbol;
+
+  while( !isSpace(peek()) && peek() != EOF )
+    symbol += get();
+
+  return this->makeToken(Token::TokenType::Symbol, std::move(symbol));
 }
 
 std::queue<Token> Lexer::LexAll(InStream& in)
@@ -58,12 +92,50 @@ size_t Lexer::CurrentFileOffset() const
   return this->inputStream.CurrentFileOffset();
 }
 
+Token Lexer::lexDirective()
+{
+  std::string directiveName;
+
+  while(!isSpace(peek()))
+    directiveName += get();
+
+  std::pair<Token::TokenType, std::string_view> validTypeNamePairs[] =
+  {
+    {TT::DCatch,      "catch"},
+    {TT::DClass,      "class"},
+    {TT::DEnd,        "end"},
+    {TT::DField,      "field"},
+    {TT::DImplements, "implements"},
+    {TT::DInterface,  "interface"},
+    {TT::DLimit,      "limit"},
+    {TT::DLine,       "line"},
+    {TT::DMethod,     "method"},
+    {TT::DSource,     "source"},
+    {TT::DSuper,      "super"},
+    {TT::DThrows,     "throws"},
+    {TT::DVar,        "var"},
+  };
+
+  auto it = std::find_if(
+      std::begin(validTypeNamePairs), 
+      std::end(validTypeNamePairs), 
+      [&directiveName](auto p)
+      {
+        return directiveName == p.second;
+      });
+
+  if( it == std::end(validTypeNamePairs) )
+    throw error(fmt::format("invalid directive \".{}\"", directiveName));
+
+  return this->makeToken((*it).first);
+}
+
 void Lexer::skipWhitespaceAndComments()
 {
   while(isSpace(peek()) || peek(';'))
   {
+    this->skipComment(); 
     this->skipWhitespace();
-    this->skipComments();
   }
 }
 
@@ -72,16 +144,11 @@ void Lexer::skipWhitespace()
   while(consumeNextCharIf( this->isSpace ));
 }
 
-void Lexer::skipComments()
+void Lexer::skipComment()
 {
-  if(!consumeNextCharIf(';'))
-    return;
+  while(consumeNextCharIf(';'))
+    while(get() != '\n' && peek() != EOF);
 
-  while(peek() != '\n' && peek() != EOF)
-    get();
-
-  if(peek() == ';')
-    skipComments();
 }
 
 Token Lexer::makeToken(Token::TokenType type, std::string val) const
@@ -151,3 +218,4 @@ std::runtime_error Lexer::error(std::string_view message) const
       message, this->CurrentLineNumber(), this->CurrentLineOffset())};
 }
 
+} //namespace: Jasmin
