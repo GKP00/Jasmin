@@ -75,8 +75,6 @@ Lexer::Lexer(InStream& in)
 {
 }
 
-Lexer::Lexer(InStream&& in) : Lexer(in) {}
-
 unsigned int Lexer::CurrentLineNumber() const
 {
   return this->inputStream.CurrentLineNumber();

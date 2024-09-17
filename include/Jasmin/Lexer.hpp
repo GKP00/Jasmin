@@ -49,7 +49,6 @@ class Lexer
 {
   public:
     Lexer(InStream& in);
-    Lexer(InStream&& in);
     static std::queue<Token> LexAll(InStream& in);
     static std::queue<Token> LexAll(InStream&& in);
 
