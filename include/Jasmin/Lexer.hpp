@@ -4,6 +4,8 @@
 #include<string>
 #include<string_view>
 #include<queue>
+#include<optional>
+#include<map>
 
 namespace Jasmin
 {
@@ -14,8 +16,12 @@ class Token
     enum class TokenType
     {
       Symbol,
+      Label,
+      Integer,
+      Decimal,
+      String,
+      Colon,
 
-      //Directives
       DCatch,
       DClass,
       DEnd,
@@ -29,6 +35,29 @@ class Token
       DSuper,
       DThrows,
       DVar,
+
+      Eq,
+      Plus,
+      Minus,
+      Div,
+      Mul,
+      LParen,
+      RParen,
+
+      Public,
+      Private,
+      Protected,
+      Static,
+      Final,
+      Synchronized,
+      Native,
+      Abstract,
+      Volatile,
+      Transient,
+      Default,
+
+      Newline,
+      END,
     };
 
     struct MetaInfo
@@ -38,9 +67,9 @@ class Token
       size_t FileOffset;
     };
 
-    const TokenType Type;
-    const std::string Value;
-    const MetaInfo Info;
+    TokenType Type;
+    std::string Value;
+    MetaInfo Info;
 };
 
 std::ostream& operator<<(std::ostream&, const Token::TokenType&);
@@ -52,7 +81,7 @@ class Lexer
     static std::queue<Token> LexAll(InStream& in);
     static std::queue<Token> LexAll(InStream&& in);
 
-    bool  HasMore(); 
+    bool  HasMore() const;
     Token LexNext();
 
     unsigned int   CurrentLineNumber() const;
@@ -60,28 +89,45 @@ class Lexer
     size_t         CurrentFileOffset() const;
 
   private:
+    //NOTE: below functions assume the first char has already been consumed
+    //('.' for directives, ';' for comments, etc.)
     Token lexDirective();
+    Token lexString();
+
+    //NOTE: assumes '.' has already been consumed after the integer part
+    Token lexDecimal(std::string integerPart);
+
+    Token lexNumber();
+
+    std::optional<Token> isKeywordToken(std::string_view);
 
     char get();
     char get(char);
     char peek() const;
     bool peek(char) const;
 
-    void ensureNextChar(char) const;
-    void ensureNextChar(std::function<bool(char)>) const;
+    void ensureNextChar(char, std::string_view msg="") const;
+    void ensureNextChar(std::function<bool(char)>, std::string_view msg="") const;
 
     bool consumeNextCharIf(char);
     bool consumeNextCharIf(std::function<bool(char)>);
 
-    void skipWhitespaceAndComments();
-    void skipWhitespace();
-    void skipComment();
+    void consumeToEndOfLine();
+    void consumeWhitespaceAndComments();
 
     Token makeToken(Token::TokenType, std::string="") const;
 
-    static bool isSpace(char c) { return std::isspace(c); }
+    //NOTE: these are defined statically to be more easily passed as functors
+    //(apparently std functions are special and cant be passed directly)
+    static bool isAlpha(char c) { return std::isalpha(c); } 
+    static bool isDigit(char c) { return std::isdigit(c); } 
+    static bool isWhitespace(char c) { return std::isspace(c); }
+    static bool isNewline(char c) { return c == '\n'; }
+    static bool isSpace(char c) { return c == ' ' || c == '\t'; }
+    static bool isEOF(char c) { return c == EOF; }
 
     std::runtime_error error(std::string_view) const;
+    std::runtime_error logicError(std::string_view) const;
 
   private:
     InStream& inputStream;

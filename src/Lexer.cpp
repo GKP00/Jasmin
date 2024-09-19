@@ -2,7 +2,6 @@
 
 #include <fmt/core.h>
 
-
 namespace Jasmin
 {
 
@@ -12,46 +11,120 @@ std::ostream& operator<<(std::ostream& out, const Token::TokenType& type)
 {
   switch(type)
   {
-    case TT::Symbol: out << "Symbol"     ; break;
+    case TT::Symbol:      out << "Symbol"       ; break;
+    case TT::Label:       out << "Label"        ; break;
+    case TT::Integer:     out << "Integer"      ; break;
+    case TT::Decimal:     out << "Decimal"      ; break;
+    case TT::String:      out << "String"       ; break;
+    case TT::Colon:       out << "Colon"        ; break;
 
-    case TT::DCatch:      out << "DCatch"     ; break;
-    case TT::DClass:      out << "DClass"     ; break;
-    case TT::DEnd:        out << "DEnd"       ; break;
-    case TT::DField:      out << "DField"     ; break;
-    case TT::DImplements: out << "DImplements"; break;
-    case TT::DInterface:  out << "DInterface" ; break;
-    case TT::DLimit:      out << "DLimit"     ; break;
-    case TT::DLine:       out << "DLine"      ; break;
-    case TT::DMethod:     out << "DMethod"    ; break;
-    case TT::DSource:     out << "DSource"    ; break;
-    case TT::DSuper:      out << "DSuper"     ; break;
-    case TT::DThrows:     out << "DThrows"    ; break;
-    case TT::DVar:        out << "DVar"       ; break;
+    case TT::DCatch:      out << "DCatch"       ; break;
+    case TT::DClass:      out << "DClass"       ; break;
+    case TT::DEnd:        out << "DEnd"         ; break;
+    case TT::DField:      out << "DField"       ; break;
+    case TT::DImplements: out << "DImplements"  ; break;
+    case TT::DInterface:  out << "DInterface"   ; break;
+    case TT::DLimit:      out << "DLimit"       ; break;
+    case TT::DLine:       out << "DLine"        ; break;
+    case TT::DMethod:     out << "DMethod"      ; break;
+    case TT::DSource:     out << "DSource"      ; break;
+    case TT::DSuper:      out << "DSuper"       ; break;
+    case TT::DThrows:     out << "DThrows"      ; break;
+    case TT::DVar:        out << "DVar"         ; break;
+
+    case TT::Eq:          out << "Eq"           ; break;
+    case TT::Plus:        out << "Plus"         ; break;
+    case TT::Minus:       out << "Minus"        ; break;
+    case TT::Div:         out << "Div"          ; break;
+    case TT::Mul:         out << "Mul"          ; break;
+    case TT::LParen:      out << "LParen"       ; break;
+    case TT::RParen:      out << "RParen"       ; break;
+
+    case TT::Public:       out << "Public"      ; break;
+    case TT::Private:      out << "Private"     ; break;
+    case TT::Protected:    out << "Protected"   ; break;
+    case TT::Static:       out << "Static"      ; break;
+    case TT::Final:        out << "Final"       ; break;
+    case TT::Synchronized: out << "Synchronized"; break;
+    case TT::Native:       out << "Native"      ; break;
+    case TT::Abstract:     out << "Abstract"    ; break;
+    case TT::Volatile:     out << "Volatile"    ; break;
+    case TT::Transient:    out << "Transient"   ; break;
+    case TT::Default:      out << "Default"     ; break;
+
+    case TT::Newline:     out << "Newline"      ; break;
+    case TT::END:         out << "End"          ; break;
   }
 
   return out;
 }
 
-bool Lexer::HasMore()
+bool Lexer::HasMore() const
 {
-  this->skipWhitespaceAndComments();
-  return peek() != EOF;
+  return !isEOF(peek());
 }
 
 Token Lexer::LexNext()
 {
-  if(!this->HasMore())
-    throw error(fmt::format("LexNext called after empty input stream"));
+  consumeWhitespaceAndComments();
+
+  if(consumeNextCharIf('\n'))
+    return makeToken(TT::Newline);
+
+  if(!HasMore())
+    return makeToken(TT::END);
 
   if(consumeNextCharIf('.'))
-    return this->lexDirective();
+  {
+    if( isDigit(peek()) )
+      return lexDecimal("0");
+    else
+      return lexDirective();
+  }
 
-  std::string symbol;
+  if(consumeNextCharIf('"'))
+    return lexString();
 
-  while( !isSpace(peek()) && peek() != EOF )
-    symbol += get();
+  if(consumeNextCharIf('='))
+    return makeToken(TT::Eq);
 
-  return this->makeToken(Token::TokenType::Symbol, std::move(symbol));
+  if(consumeNextCharIf('+'))
+    return makeToken(TT::Plus);
+
+  if(consumeNextCharIf('-'))
+    return makeToken(TT::Minus);
+
+  if(consumeNextCharIf('/'))
+    return makeToken(TT::Div);
+
+  if(consumeNextCharIf('*'))
+    return makeToken(TT::Mul);
+
+  if(consumeNextCharIf('('))
+    return makeToken(TT::LParen);
+
+  if(consumeNextCharIf(')'))
+    return makeToken(TT::RParen);
+
+  if(isDigit(peek()))
+    return lexNumber();
+
+  std::string tokenStr;
+
+  while( !isWhitespace(peek()) && !isEOF(peek()) )
+    tokenStr += get();
+
+  if(tokenStr == ":")
+    return makeToken(TT::Colon);
+
+  if(tokenStr.back() == ':')
+    return makeToken(TT::Label, std::move(tokenStr));
+
+  std::optional<Token> token = isKeywordToken(tokenStr);
+  if(token)
+    return *token;
+
+  return makeToken(TT::Symbol, std::move(tokenStr));
 }
 
 std::queue<Token> Lexer::LexAll(InStream& in)
@@ -77,79 +150,178 @@ Lexer::Lexer(InStream& in)
 
 unsigned int Lexer::CurrentLineNumber() const
 {
-  return this->inputStream.CurrentLineNumber();
+  return inputStream.CurrentLineNumber();
 }
 
 unsigned short Lexer::CurrentLineOffset() const
 {
-  return this->inputStream.CurrentLineOffset();
+  return inputStream.CurrentLineOffset();
 }
 
 size_t Lexer::CurrentFileOffset() const
 {
-  return this->inputStream.CurrentFileOffset();
+  return inputStream.CurrentFileOffset();
 }
 
 Token Lexer::lexDirective()
 {
-  std::string directiveName;
+  std::string dirName;
 
-  while(!isSpace(peek()))
-    directiveName += get();
-
-  std::pair<Token::TokenType, std::string_view> validTypeNamePairs[] =
+  while( !isWhitespace(peek()) )
   {
-    {TT::DCatch,      "catch"},
-    {TT::DClass,      "class"},
-    {TT::DEnd,        "end"},
-    {TT::DField,      "field"},
-    {TT::DImplements, "implements"},
-    {TT::DInterface,  "interface"},
-    {TT::DLimit,      "limit"},
-    {TT::DLine,       "line"},
-    {TT::DMethod,     "method"},
-    {TT::DSource,     "source"},
-    {TT::DSuper,      "super"},
-    {TT::DThrows,     "throws"},
-    {TT::DVar,        "var"},
+    ensureNextChar(isAlpha, "non alpha characters are invalid in directives");
+    dirName += get();
+  }
+
+  if(dirName.empty())
+    throw error("invalid directive name of length 0");
+
+  static const std::map<std::string_view, TT> directiveTokenMap =
+  {
+    {"catch",      TT::DCatch     },
+    {"class",      TT::DClass     },
+    {"end",        TT::DEnd       },
+    {"field",      TT::DField     },
+    {"implements", TT::DImplements},
+    {"interface",  TT::DInterface },
+    {"limit",      TT::DLimit     },
+    {"line",       TT::DLine      },
+    {"method",     TT::DMethod    },
+    {"source",     TT::DSource    },
+    {"super",      TT::DSuper     },
+    {"throws",     TT::DThrows    },
+    {"var",        TT::DVar       },
   };
 
-  auto it = std::find_if(
-      std::begin(validTypeNamePairs), 
-      std::end(validTypeNamePairs), 
-      [&directiveName](auto p)
-      {
-        return directiveName == p.second;
-      });
+  auto it = directiveTokenMap.find(dirName);
 
-  if( it == std::end(validTypeNamePairs) )
-    throw error(fmt::format("invalid directive \".{}\"", directiveName));
+  if(it == directiveTokenMap.end())
+    throw error(fmt::format("invalid directive name \"{}\"", dirName));
 
-  return this->makeToken((*it).first);
+  return makeToken(it->second);
 }
 
-void Lexer::skipWhitespaceAndComments()
+Token Lexer::lexString()
 {
-  while(isSpace(peek()) || peek(';'))
+  std::string str;
+
+  while(peek() != '"')
   {
-    this->skipComment(); 
-    this->skipWhitespace();
+    if(isEOF(peek()) || isNewline(peek()))
+        throw error("invalid string with no end");
+
+    if(consumeNextCharIf('\\'))
+    {
+      if(consumeNextCharIf('"'))
+        str += '"';
+      else if(consumeNextCharIf('n'))
+        str += '\n';
+      else
+        throw error("invalid escape character");
+
+      continue;
+    }
+
+    str += get();
+  }
+
+  get(); 
+
+  return makeToken(TT::String, std::move(str));
+}
+
+Token Lexer::lexDecimal( std::string integerPart )
+{
+  if(integerPart.empty())
+    throw logicError("lexDecimal() called with empty integer part");
+
+  std::string fractionPart;
+  while( isDigit(peek()) )
+    fractionPart += get();
+
+  if(fractionPart.empty())
+    throw error("invalid decimal with no fraction part");
+
+  std::string decimalStr;
+  decimalStr += std::move(integerPart);
+  decimalStr += '.';
+  decimalStr += std::move(fractionPart);
+
+  return makeToken(TT::Decimal, std::move(decimalStr));
+}
+
+Token Lexer::lexNumber()
+{
+  std::string integerStr;
+
+  if(consumeNextCharIf('-'))
+
+  if(consumeNextCharIf('0'))
+  {
+    integerStr += '0';
+
+    if(consumeNextCharIf('x'))
+      integerStr += 'x';
+    else if(consumeNextCharIf('.'))
+      return lexDecimal("0");
+
+    if(peek() == '0')
+      throw error("double zero encountered in integer");
+  }
+
+  while( isDigit(peek()) )
+    integerStr += get();
+
+  if(integerStr.empty())
+    throw logicError("lexNumber() called but no digits consumed");
+
+  return makeToken(TT::Integer, std::move(integerStr));
+}
+
+std::optional<Token> Lexer::isKeywordToken(std::string_view keywordStr)
+{
+  static const std::map<std::string_view, TT> keywordTokenMap = 
+  {
+    {"public",       TT::Public      },
+    {"private",      TT::Private     },
+    {"protected",    TT::Protected   },
+    {"static",       TT::Static      },
+    {"final",        TT::Final       },
+    {"synchronized", TT::Synchronized},
+    {"native",       TT::Native      },
+    {"abstract",     TT::Abstract    },
+    {"volatile",     TT::Volatile    },
+    {"transient",    TT::Transient   },
+    {"default",      TT::Default     },
+  };
+
+  auto it = keywordTokenMap.find(keywordStr);
+  if(it != keywordTokenMap.end())
+    return makeToken(it->second);
+
+  return std::nullopt;
+}
+
+void Lexer::consumeToEndOfLine()
+{
+  while(!isNewline(peek()) && !isEOF(peek()))
+    get();
+}
+
+void Lexer::consumeWhitespaceAndComments()
+{
+  //NOTE: technically the spec (https://jasmin.sourceforge.net/guide.html) 
+  //says comments have to be preceded by any whitespace which includes 
+  //newlines, but thats stupid and im not doing that.
+  while(consumeNextCharIf(isSpace))
+  {
+    if(consumeNextCharIf(';'))
+      consumeToEndOfLine();
   }
 }
 
-void Lexer::skipWhitespace()
-{
-  while(consumeNextCharIf( this->isSpace ));
-}
 
-void Lexer::skipComment()
-{
-  while(consumeNextCharIf(';'))
-    while(get() != '\n' && peek() != EOF);
-
-}
-
-Token Lexer::makeToken(Token::TokenType type, std::string val) const
+Token Lexer::makeToken(TT type, std::string val) const
 {
   return Token
   {
@@ -181,19 +353,19 @@ char Lexer::peek() const
 
 bool Lexer::peek(char c) const
 {
-  return this->peek() == c;
+  return peek() == c;
 }
 
-void Lexer::ensureNextChar(char next) const
+void Lexer::ensureNextChar(char next, std::string_view msg) const
 {
   if(peek() != next)
     throw error(fmt::format("encountered '{}' when '{}' was expected", peek(), next));
 }
 
-void Lexer::ensureNextChar(std::function<bool(char)> isWhatsExpected) const
+void Lexer::ensureNextChar(std::function<bool(char)> isWhatsExpected, std::string_view msg) const
 {
   if(!isWhatsExpected(peek()))
-    throw error(fmt::format("encountered unexpected lexeme value '{}'", peek()));
+    throw error(fmt::format("unexpected character '{}' ({})", peek(), msg));
 }
 
 bool Lexer::consumeNextCharIf(char c)
@@ -213,6 +385,13 @@ bool Lexer::consumeNextCharIf(std::function<bool(char)> func)
 std::runtime_error Lexer::error(std::string_view message) const
 {
   return std::runtime_error{fmt::format("Lexer error: {} on line {} col {}", 
+      message, this->CurrentLineNumber(), this->CurrentLineOffset())};
+}
+
+std::runtime_error Lexer::logicError(std::string_view message) const
+{
+  return std::runtime_error{fmt::format(
+      "Program error: {} (occured while lexing line {} col {})", 
       message, this->CurrentLineNumber(), this->CurrentLineOffset())};
 }
 
