@@ -1,11 +1,11 @@
 #include "Stream.hpp"
 
-#include<functional>
-#include<string>
-#include<string_view>
-#include<queue>
-#include<optional>
-#include<map>
+#include <functional>
+#include <string>
+#include <string_view>
+#include <queue>
+#include <optional>
+#include <map>
 
 namespace Jasmin
 {
