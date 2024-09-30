@@ -38,13 +38,7 @@ class Token
       DThrows,
       DVar,
 
-      Eq,
-      Plus,
       Minus,
-      Div,
-      Mul,
-      LParen,
-      RParen,
 
       Public,
       Private,

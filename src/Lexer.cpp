@@ -32,13 +32,7 @@ std::ostream& operator<<(std::ostream& out, const Token::TokenType& type)
     case TT::DThrows:     out << "DThrows"      ; break;
     case TT::DVar:        out << "DVar"         ; break;
 
-    case TT::Eq:          out << "Eq"           ; break;
-    case TT::Plus:        out << "Plus"         ; break;
     case TT::Minus:       out << "Minus"        ; break;
-    case TT::Div:         out << "Div"          ; break;
-    case TT::Mul:         out << "Mul"          ; break;
-    case TT::LParen:      out << "LParen"       ; break;
-    case TT::RParen:      out << "RParen"       ; break;
 
     case TT::Public:       out << "Public"      ; break;
     case TT::Private:      out << "Private"     ; break;
@@ -85,26 +79,8 @@ Token Lexer::LexNext()
   if(consumeNextCharIf('"'))
     return lexString();
 
-  if(consumeNextCharIf('='))
-    return makeToken(TT::Eq);
-
-  if(consumeNextCharIf('+'))
-    return makeToken(TT::Plus);
-
   if(consumeNextCharIf('-'))
     return makeToken(TT::Minus);
-
-  if(consumeNextCharIf('/'))
-    return makeToken(TT::Div);
-
-  if(consumeNextCharIf('*'))
-    return makeToken(TT::Mul);
-
-  if(consumeNextCharIf('('))
-    return makeToken(TT::LParen);
-
-  if(consumeNextCharIf(')'))
-    return makeToken(TT::RParen);
 
   if(isDigit(peek()))
     return lexNumber();
@@ -253,8 +229,6 @@ Token Lexer::lexDecimal( std::string integerPart )
 Token Lexer::lexNumber()
 {
   std::string integerStr;
-
-  if(consumeNextCharIf('-'))
 
   if(consumeNextCharIf('0'))
   {
