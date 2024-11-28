@@ -16,17 +16,13 @@
 using T = Jasmin::Token;
 using TT = T::TokenType;
 
-static void expectTokens(std::queue<T> tokens, 
+static void expectTokens(std::vector<T> tokens, 
                          const std::vector<TT>& expectedTTs)
 {
-  for(TT expectedTT : expectedTTs)
-  {
-    EXPECT_FALSE(tokens.empty());
-    EXPECT_EQ(tokens.front().Type, expectedTT);
-    tokens.pop();
-  }
+  EXPECT_TRUE(tokens.size() == expectedTTs.size() );
 
-  EXPECT_TRUE(tokens.empty());
+  for(unsigned i = 0; i < expectedTTs.size(); ++i)
+    EXPECT_EQ(tokens[i].Type, expectedTTs[i]);
 }
 
 TEST(LexerTests, SampleClassAndSuperStatement)

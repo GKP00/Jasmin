@@ -75,8 +75,8 @@ class Lexer
 {
   public:
     Lexer(InStream& in);
-    static std::queue<Token> LexAll(InStream& in);
-    static std::queue<Token> LexAll(InStream&& in);
+    static std::vector<Token> LexAll(InStream& in);
+    static std::vector<Token> LexAll(InStream&& in);
 
     bool  HasMore() const;
     Token LexNext();

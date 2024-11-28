@@ -113,18 +113,18 @@ Token Lexer::LexNext()
   return makeToken(TT::Symbol, std::move(tokenStr));
 }
 
-std::queue<Token> Lexer::LexAll(InStream& in)
+std::vector<Token> Lexer::LexAll(InStream& in)
 {
   Lexer lexer{in};
-  std::queue<Token> tokens;
+  std::vector<Token> tokens;
 
   while(lexer.HasMore())
-    tokens.emplace(lexer.LexNext());
+    tokens.emplace_back(lexer.LexNext());
 
   return tokens;
 }
 
-std::queue<Token> Lexer::LexAll(InStream&& in)
+std::vector<Token> Lexer::LexAll(InStream&& in)
 {
   return Lexer::LexAll(in);
 }
