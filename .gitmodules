@@ -1,0 +1,3 @@
+[submodule "deps/ClassFile"]
+	path = deps/ClassFile
+	url = https://github.com/GKP00/ClassFile
