@@ -1,5 +1,8 @@
 #include "Jasmin/Lexer.hpp"
 
+
+#include <ClassFile/OpCodes.hpp>
+
 #include <fmt/core.h>
 
 namespace Jasmin
@@ -11,6 +14,7 @@ std::ostream& operator<<(std::ostream& out, const Token::TokenType& type)
 {
   switch(type)
   {
+    case TT::Instruction: out << "Instruction"  ; break;
     case TT::Symbol:      out << "Symbol"       ; break;
     case TT::Label:       out << "Label"        ; break;
     case TT::Integer:     out << "Integer"      ; break;
@@ -99,6 +103,12 @@ Token Lexer::LexNext()
   std::optional<Token> token = isKeywordToken(tokenStr);
   if(token)
     return *token;
+
+  //check if token is a valid instr mnemonic, according to libClassFile, by
+  //getting its opcode
+  auto errOrOp = ClassFile::GetOpCode(tokenStr);
+  if(!errOrOp.IsError())
+    return makeToken(TT::Instruction, std::move(tokenStr));
 
   return makeToken(TT::Symbol, std::move(tokenStr));
 }

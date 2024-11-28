@@ -17,6 +17,7 @@ class Token
   public:
     enum class TokenType
     {
+      Instruction,
       Symbol,
       Label,
       Integer,

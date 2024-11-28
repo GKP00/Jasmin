@@ -57,10 +57,10 @@ TEST(LexerTests, SampleMethodDefinition)
   {
     TT::Method, TT::Public, TT::Static,  TT::Symbol, TT::Newline,
     TT::Limit,  TT::Symbol, TT::Integer, TT::Newline,
-    TT::Symbol, TT::Symbol, TT::Symbol,  TT::Newline, //first should be instr
-    TT::Symbol, TT::String, TT::Newline, //first should be instr
-    TT::Symbol, TT::Symbol, TT::Newline, //first should be instr
-    TT::Symbol, TT::Newline, //first should be Return
+    TT::Instruction, TT::Symbol, TT::Symbol,  TT::Newline,
+    TT::Instruction, TT::String, TT::Newline,
+    TT::Instruction, TT::Symbol, TT::Newline,
+    TT::Instruction, TT::Newline,
     TT::End,    TT::Symbol,
   });
 
