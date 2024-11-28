@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <Jasmin/Lexer.hpp>
+#include <Jasmin/Parser.hpp>
 
 #include <iostream>
 
@@ -60,4 +61,10 @@ TEST(LexerTests, SampleMethodDefinition)
     TT::End,    TT::Symbol,
   });
 
+}
+
+TEST(ParserTests, ParsesAllTokens)
+{
+  auto nodes = Jasmin::Parser::ParseAll( { {}, {}, {} } );
+  EXPECT_EQ(nodes.size(), 3);
 }

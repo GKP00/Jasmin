@@ -17,7 +17,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(fmt)
 
-add_library(Jasmin "src/Lexer.cpp")
+add_library(Jasmin "src/Lexer.cpp" "src/Parser.cpp")
 
 target_include_directories(Jasmin PUBLIC "include")
 target_link_libraries(Jasmin PRIVATE fmt)
