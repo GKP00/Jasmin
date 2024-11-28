@@ -18,19 +18,19 @@ std::ostream& operator<<(std::ostream& out, const Token::TokenType& type)
     case TT::String:      out << "String"       ; break;
     case TT::Colon:       out << "Colon"        ; break;
 
-    case TT::DCatch:      out << "DCatch"       ; break;
-    case TT::DClass:      out << "DClass"       ; break;
-    case TT::DEnd:        out << "DEnd"         ; break;
-    case TT::DField:      out << "DField"       ; break;
-    case TT::DImplements: out << "DImplements"  ; break;
-    case TT::DInterface:  out << "DInterface"   ; break;
-    case TT::DLimit:      out << "DLimit"       ; break;
-    case TT::DLine:       out << "DLine"        ; break;
-    case TT::DMethod:     out << "DMethod"      ; break;
-    case TT::DSource:     out << "DSource"      ; break;
-    case TT::DSuper:      out << "DSuper"       ; break;
-    case TT::DThrows:     out << "DThrows"      ; break;
-    case TT::DVar:        out << "DVar"         ; break;
+    case TT::Catch:      out << "Catch"       ; break;
+    case TT::Class:      out << "Class"       ; break;
+    case TT::End:        out << "End"         ; break;
+    case TT::Field:      out << "Field"       ; break;
+    case TT::Implements: out << "Implements"  ; break;
+    case TT::Interface:  out << "Interface"   ; break;
+    case TT::Limit:      out << "Limit"       ; break;
+    case TT::Line:       out << "Line"        ; break;
+    case TT::Method:     out << "Method"      ; break;
+    case TT::Source:     out << "Source"      ; break;
+    case TT::Super:      out << "Super"       ; break;
+    case TT::Throws:     out << "Throws"      ; break;
+    case TT::Var:        out << "Var"         ; break;
 
     case TT::Minus:       out << "Minus"        ; break;
 
@@ -154,19 +154,19 @@ Token Lexer::lexDirective()
 
   static const std::map<std::string_view, TT> directiveTokenMap =
   {
-    {"catch",      TT::DCatch     },
-    {"class",      TT::DClass     },
-    {"end",        TT::DEnd       },
-    {"field",      TT::DField     },
-    {"implements", TT::DImplements},
-    {"interface",  TT::DInterface },
-    {"limit",      TT::DLimit     },
-    {"line",       TT::DLine      },
-    {"method",     TT::DMethod    },
-    {"source",     TT::DSource    },
-    {"super",      TT::DSuper     },
-    {"throws",     TT::DThrows    },
-    {"var",        TT::DVar       },
+    {"catch",      TT::Catch     },
+    {"class",      TT::Class     },
+    {"end",        TT::End       },
+    {"field",      TT::Field     },
+    {"implements", TT::Implements},
+    {"interface",  TT::Interface },
+    {"limit",      TT::Limit     },
+    {"line",       TT::Line      },
+    {"method",     TT::Method    },
+    {"source",     TT::Source    },
+    {"super",      TT::Super     },
+    {"throws",     TT::Throws    },
+    {"var",        TT::Var       },
   };
 
   auto it = directiveTokenMap.find(dirName);

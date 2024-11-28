@@ -37,8 +37,8 @@ TEST(LexerTests, SampleClassAndSuperStatement)
 
     expectTokens(tokens,
     {
-      TT::DClass,  TT::Public, TT::Symbol,
-      TT::Newline, TT::DSuper, TT::Symbol,
+      TT::Class,   TT::Public, TT::Symbol,
+      TT::Newline, TT::Super,  TT::Symbol,
     });
 }
 
@@ -55,13 +55,13 @@ TEST(LexerTests, SampleMethodDefinition)
 
   expectTokens(tokens, 
   {
-    TT::DMethod, TT::Public, TT::Static,  TT::Symbol, TT::Newline,
-    TT::DLimit,  TT::Symbol, TT::Integer, TT::Newline,
-    TT::Symbol,  TT::Symbol, TT::Symbol,  TT::Newline, //first should be instr
-    TT::Symbol,  TT::String, TT::Newline, //first should be instr
-    TT::Symbol,  TT::Symbol, TT::Newline, //first should be instr
-    TT::Symbol,  TT::Newline, //first should be Return
-    TT::DEnd,    TT::Symbol,
+    TT::Method, TT::Public, TT::Static,  TT::Symbol, TT::Newline,
+    TT::Limit,  TT::Symbol, TT::Integer, TT::Newline,
+    TT::Symbol, TT::Symbol, TT::Symbol,  TT::Newline, //first should be instr
+    TT::Symbol, TT::String, TT::Newline, //first should be instr
+    TT::Symbol, TT::Symbol, TT::Newline, //first should be instr
+    TT::Symbol, TT::Newline, //first should be Return
+    TT::End,    TT::Symbol,
   });
 
 }
