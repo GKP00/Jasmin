@@ -22,6 +22,9 @@ add_library(Jasmin "src/Lexer.cpp")
 target_include_directories(Jasmin PUBLIC "include")
 target_link_libraries(Jasmin PRIVATE fmt)
 
+add_subdirectory("deps/ClassFile/")
+target_link_libraries(Jasmin PUBLIC ClassFile)
+
 option(BUILD_TESTS "build tests" OFF)
 if(BUILD_TESTS)
   add_subdirectory(test)
