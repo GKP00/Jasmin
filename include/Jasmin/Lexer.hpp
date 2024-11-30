@@ -25,6 +25,7 @@ class Token
       String,
       Colon,
 
+      //DIRECTIVES (GROUPING MATTERS)
       Catch,
       Class,
       End,
@@ -38,6 +39,7 @@ class Token
       Super,
       Throws,
       Var,
+      //END OF DIRECTIVES
 
       Minus,
 
@@ -56,6 +58,8 @@ class Token
       Newline,
     };
 
+    bool IsDirective();
+
     struct MetaInfo
     {
       unsigned int LineNumber;
@@ -68,6 +72,9 @@ class Token
     MetaInfo Info;
 };
 
+using TT = Token::TokenType;
+
+std::string ToString(const Token::TokenType&);
 std::ostream& operator<<(std::ostream&, const Token::TokenType&);
 
 class Lexer 

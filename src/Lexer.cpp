@@ -1,6 +1,5 @@
 #include "Jasmin/Lexer.hpp"
 
-
 #include <ClassFile/OpCodes.hpp>
 
 #include <fmt/core.h>
@@ -10,51 +9,60 @@ namespace Jasmin
 
 using TT = Token::TokenType;
 
-std::ostream& operator<<(std::ostream& out, const Token::TokenType& type)
+std::string ToString(const Token::TokenType& type)
 {
   switch(type)
   {
-    case TT::Instruction: out << "Instruction"  ; break;
-    case TT::Symbol:      out << "Symbol"       ; break;
-    case TT::Label:       out << "Label"        ; break;
-    case TT::Integer:     out << "Integer"      ; break;
-    case TT::Decimal:     out << "Decimal"      ; break;
-    case TT::String:      out << "String"       ; break;
-    case TT::Colon:       out << "Colon"        ; break;
+    case TT::Instruction: return "Instruction"  ; break;
+    case TT::Symbol:      return "Symbol"       ; break;
+    case TT::Label:       return "Label"        ; break;
+    case TT::Integer:     return "Integer"      ; break;
+    case TT::Decimal:     return "Decimal"      ; break;
+    case TT::String:      return "String"       ; break;
+    case TT::Colon:       return "Colon"        ; break;
 
-    case TT::Catch:      out << "Catch"       ; break;
-    case TT::Class:      out << "Class"       ; break;
-    case TT::End:        out << "End"         ; break;
-    case TT::Field:      out << "Field"       ; break;
-    case TT::Implements: out << "Implements"  ; break;
-    case TT::Interface:  out << "Interface"   ; break;
-    case TT::Limit:      out << "Limit"       ; break;
-    case TT::Line:       out << "Line"        ; break;
-    case TT::Method:     out << "Method"      ; break;
-    case TT::Source:     out << "Source"      ; break;
-    case TT::Super:      out << "Super"       ; break;
-    case TT::Throws:     out << "Throws"      ; break;
-    case TT::Var:        out << "Var"         ; break;
+    case TT::Catch:      return "Catch"       ; break;
+    case TT::Class:      return "Class"       ; break;
+    case TT::End:        return "End"         ; break;
+    case TT::Field:      return "Field"       ; break;
+    case TT::Implements: return "Implements"  ; break;
+    case TT::Interface:  return "Interface"   ; break;
+    case TT::Limit:      return "Limit"       ; break;
+    case TT::Line:       return "Line"        ; break;
+    case TT::Method:     return "Method"      ; break;
+    case TT::Source:     return "Source"      ; break;
+    case TT::Super:      return "Super"       ; break;
+    case TT::Throws:     return "Throws"      ; break;
+    case TT::Var:        return "Var"         ; break;
 
-    case TT::Minus:       out << "Minus"        ; break;
+    case TT::Minus:       return "Minus"        ; break;
 
-    case TT::Public:       out << "Public"      ; break;
-    case TT::Private:      out << "Private"     ; break;
-    case TT::Protected:    out << "Protected"   ; break;
-    case TT::Static:       out << "Static"      ; break;
-    case TT::Final:        out << "Final"       ; break;
-    case TT::Synchronized: out << "Synchronized"; break;
-    case TT::Native:       out << "Native"      ; break;
-    case TT::Abstract:     out << "Abstract"    ; break;
-    case TT::Volatile:     out << "Volatile"    ; break;
-    case TT::Transient:    out << "Transient"   ; break;
-    case TT::Default:      out << "Default"     ; break;
+    case TT::Public:       return "Public"      ; break;
+    case TT::Private:      return "Private"     ; break;
+    case TT::Protected:    return "Protected"   ; break;
+    case TT::Static:       return "Static"      ; break;
+    case TT::Final:        return "Final"       ; break;
+    case TT::Synchronized: return "Synchronized"; break;
+    case TT::Native:       return "Native"      ; break;
+    case TT::Abstract:     return "Abstract"    ; break;
+    case TT::Volatile:     return "Volatile"    ; break;
+    case TT::Transient:    return "Transient"   ; break;
+    case TT::Default:      return "Default"     ; break;
 
-    case TT::Newline:     out << "Newline"      ; break;
-    case TT::END:         out << "End"          ; break;
+    case TT::Newline:     return "Newline"      ; break;
   }
 
-  return out;
+  return "UNKNOWN";
+}
+
+std::ostream& operator<<(std::ostream& out, const Token::TokenType& type)
+{
+  return out << ToString(type);
+}
+
+bool Token::IsDirective()
+{
+  return this->Type >= TT::Catch && this->Type <= TT::Var;
 }
 
 bool Lexer::HasMore() const
