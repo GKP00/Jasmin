@@ -54,7 +54,6 @@ class Token
       Default,
 
       Newline,
-      END,
     };
 
     struct MetaInfo

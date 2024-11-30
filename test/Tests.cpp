@@ -34,8 +34,8 @@ TEST(LexerTests, SampleClassAndSuperStatement)
 
     expectTokens(tokens,
     {
-      TT::Class,   TT::Public, TT::Symbol,
-      TT::Newline, TT::Super,  TT::Symbol,
+      TT::Class,   TT::Public, TT::Symbol, TT::Newline,
+      TT::Super,  TT::Symbol, TT::Newline,
     });
 }
 
@@ -58,7 +58,7 @@ TEST(LexerTests, SampleMethodDefinition)
     TT::Instruction, TT::String, TT::Newline,
     TT::Instruction, TT::Symbol, TT::Newline,
     TT::Instruction, TT::Newline,
-    TT::End,    TT::Symbol,
+    TT::End, TT::Symbol, TT::Newline,
   });
 
 }

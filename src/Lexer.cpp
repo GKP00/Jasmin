@@ -70,7 +70,7 @@ Token Lexer::LexNext()
     return makeToken(TT::Newline);
 
   if(!HasMore())
-    return makeToken(TT::END);
+    return makeToken(TT::Newline);
 
   if(consumeNextCharIf('.'))
   {
@@ -120,6 +120,9 @@ std::vector<Token> Lexer::LexAll(InStream& in)
 
   while(lexer.HasMore())
     tokens.emplace_back(lexer.LexNext());
+
+  if(tokens.back().Type != TT::Newline)
+    tokens.emplace_back(lexer.makeToken(TT::Newline));
 
   return tokens;
 }
