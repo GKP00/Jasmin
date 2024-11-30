@@ -1,5 +1,7 @@
 #include "Jasmin/Parser.hpp"
 
+#include <fmt/core.h>
+
 namespace Jasmin
 {
 
@@ -28,8 +30,14 @@ bool Parser::HasMore() const
 
 NodePtr Parser::ParseNext()
 {
-  consumeNextToken();
-  return std::make_unique<Node>();
+  Token token;
+  while( (token = consumeNextToken()).Type == TT::Newline);
+
+  if(token.IsDirective())
+    return parseDirective(std::move(token.Value));
+
+  throw error(fmt::format(
+        "unexpected top level token: {}=\"{}\"", ToString(token.Type), token.Value));
 }
 
 Token Parser::consumeNextToken()
@@ -37,4 +45,15 @@ Token Parser::consumeNextToken()
   return tokens[currentToken++];
 }
 
+NodePtr Parser::parseDirective(std::string dName)
+{ 
+  auto pDNode = std::make_unique<DirectiveNode>();
+  pDNode->Directive = std::move(dName);
+
+  Token arg;
+  while( (arg = consumeNextToken()).Type != TT::Newline ) 
+    pDNode->Args.emplace_back( std::move(arg.Value) );
+
+  return pDNode;
+}
 } //namespace: Jasmin
