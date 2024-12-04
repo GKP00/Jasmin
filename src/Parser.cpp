@@ -56,4 +56,14 @@ NodePtr Parser::parseDirective(std::string dName)
 
   return pDNode;
 }
+
+std::runtime_error Parser::error(std::string_view message) const
+{
+  return std::runtime_error{
+      fmt::format("Parser error: {} on line {} col {}",
+      message,
+      tokens[currentToken].Info.LineNumber,
+      tokens[currentToken].Info.LineOffset)};
+}
+
 } //namespace: Jasmin
