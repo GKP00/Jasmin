@@ -16,12 +16,18 @@ class Parser
     static std::vector<NodePtr> ParseAll(const std::vector<Token>& tokens);
     static std::vector<NodePtr> ParseAll(const std::vector<Token>&& tokens);
 
-    bool  HasMore() const;
+    bool HasMore() const;
     NodePtr ParseNext();
 
   private:
     Token consumeNextToken();
-    NodePtr parseDirective(std::string dName);
+    Token peekNextToken() const;
+    std::string consumeExpected(TT);
+    Token consumeDirective();
+
+    NodePtr parseDirective();
+    NodePtr parseInstruction();
+    NodePtr parseLabel();
 
     std::runtime_error error(std::string_view) const;
 

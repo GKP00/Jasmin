@@ -60,7 +60,7 @@ std::ostream& operator<<(std::ostream& out, const Token::TokenType& type)
   return out << ToString(type);
 }
 
-bool Token::IsDirective()
+bool Token::IsDirective() const
 {
   return this->Type >= TT::Catch && this->Type <= TT::Var;
 }

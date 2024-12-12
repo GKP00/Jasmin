@@ -2,6 +2,8 @@
 
 #include <fmt/core.h>
 
+#include <iostream>
+
 namespace Jasmin
 {
 
@@ -30,31 +32,114 @@ bool Parser::HasMore() const
 
 NodePtr Parser::ParseNext()
 {
+  std::cerr << "parsenext\n";
   Token token;
-  while( (token = consumeNextToken()).Type == TT::Newline);
+  while( (token = peekNextToken()).Type == TT::Newline) 
+  { 
+    std::cerr << "consume\n";
+    consumeNextToken(); }
 
   if(token.IsDirective())
-    return parseDirective(std::move(token.Value));
+    return parseDirective();
+
+  if(token.Type == TT::Instruction)
+    return parseInstruction();
+
+  if(token.Type == TT::Symbol)
+    return parseLabel();
 
   throw error(fmt::format(
         "unexpected top level token: {}=\"{}\"", ToString(token.Type), token.Value));
 }
 
-Token Parser::consumeNextToken()
+Token Parser::peekNextToken() const
 {
-  return tokens[currentToken++];
+  return tokens.size() >= currentToken ? 
+         tokens[currentToken] :
+         throw error("ran out of tokens");
 }
 
-NodePtr Parser::parseDirective(std::string dName)
+Token Parser::consumeNextToken()
+{
+  return tokens.size() > currentToken ? 
+         tokens[currentToken++] :
+         throw error("ran out of tokens");
+}
+
+std::string Parser::consumeExpected(TT expectedType)
+{
+  Token token = peekNextToken();
+
+  if(token.Type != expectedType)
+    throw error(fmt::format("unexpected token (expected {})", ToString(expectedType)));
+
+  consumeNextToken();
+  return token.Value;
+}
+
+Token Parser::consumeDirective()
+{
+  Token token = peekNextToken();
+
+  if(!token.IsDirective())
+    throw error(fmt::format("unexpected token (expected any directive)"));
+
+  consumeNextToken();
+  return token;
+}
+
+NodePtr Parser::parseDirective()
 { 
-  auto pDNode = std::make_unique<DirectiveNode>();
-  pDNode->Directive = std::move(dName);
+  NodePtr pDir = nullptr;
+  Token directiveToken = consumeDirective();
+
+  switch(directiveToken.Type)
+  {
+    default:
+    {
+      auto pUnimplemented = std::make_unique<DUnimplemented>();
+      pUnimplemented->DirectiveName = directiveToken.Value;
+
+      Token arg;
+      while( (arg = peekNextToken()).Type != TT::Newline ) 
+        pUnimplemented->Args.emplace_back( consumeNextToken().Value );
+
+      pDir = std::move(pUnimplemented);
+    }
+  }
+
+  consumeExpected(TT::Newline);
+  return pDir;
+}
+
+NodePtr Parser::parseInstruction()
+{
+  std::string mnemonic = consumeExpected(TT::Instruction);
+
+  auto pINode = std::make_unique<InstructionNode>();
+  if(!pINode)
+    throw error("parseInstruction failed to allocate InstructionNode");
+
+  pINode->Mnemonic = std::move(mnemonic);
 
   Token arg;
   while( (arg = consumeNextToken()).Type != TT::Newline ) 
-    pDNode->Args.emplace_back( std::move(arg.Value) );
+    pINode->Args.emplace_back( std::move(arg.Value) );
 
-  return pDNode;
+  return pINode;
+}
+
+NodePtr Parser::parseLabel()
+{
+  std::string label = consumeExpected(TT::Symbol);
+  consumeExpected(TT::Colon);
+
+  auto pLNode = std::make_unique<LabelNode>();
+  if(!pLNode)
+    throw error("parseLabel failed to allocate LabelNode");
+
+  pLNode->LabelName = std::move(label);
+  return pLNode;
 }
 
 std::runtime_error Parser::error(std::string_view message) const
@@ -62,8 +147,8 @@ std::runtime_error Parser::error(std::string_view message) const
   return std::runtime_error{
       fmt::format("Parser error: {} on line {} col {}",
       message,
-      tokens[currentToken].Info.LineNumber,
-      tokens[currentToken].Info.LineOffset)};
+      peekNextToken().Info.LineNumber,
+      peekNextToken().Info.LineOffset - peekNextToken().Value.length())};
 }
 
 } //namespace: Jasmin

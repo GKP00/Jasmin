@@ -58,7 +58,7 @@ class Token
       Newline,
     };
 
-    bool IsDirective();
+    bool IsDirective() const;
 
     struct MetaInfo
     {

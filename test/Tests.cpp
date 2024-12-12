@@ -34,8 +34,8 @@ TEST(LexerTests, SampleClassAndSuperStatement)
 
     expectTokens(tokens,
     {
-      TT::Class,   TT::Public, TT::Symbol, TT::Newline,
-      TT::Super,  TT::Symbol, TT::Newline,
+      TT::Class, TT::Public, TT::Symbol, TT::Newline,
+      TT::Super, TT::Symbol, TT::Newline,
     });
 }
 
@@ -70,12 +70,9 @@ TEST(ParserTests, ParseDirective)
   auto nodes = Jasmin::Parser::ParseAll(tokens);
 
   EXPECT_EQ(nodes.size(), 1);
-  EXPECT_TRUE(nodes[0]->GetType() == Jasmin::Node::Type::Directive);
+  auto pDNode = dynamic_cast<Jasmin::DSuper*>(nodes[0].get());
+  ASSERT_NE(pDNode, nullptr);
 
-  auto pDNode = dynamic_cast<Jasmin::DirectiveNode*>(nodes[0].get());
-  EXPECT_NE(pDNode, nullptr);
-
-  EXPECT_EQ(pDNode->Args.size(), 1);
-  EXPECT_EQ(pDNode->Args[0], "java/lang/Object");
+  EXPECT_EQ(pDNode->SuperName, "java/lang/Object");
 }
 
