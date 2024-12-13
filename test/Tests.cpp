@@ -2,6 +2,9 @@
 
 #include <Jasmin/Lexer.hpp>
 #include <Jasmin/Parser.hpp>
+#include <Jasmin/Assembler.hpp>
+
+#include <ClassFile/ClassFile.hpp>
 
 #include <iostream>
 
@@ -74,5 +77,11 @@ TEST(ParserTests, ParseDirective)
   ASSERT_NE(pDNode, nullptr);
 
   EXPECT_EQ(pDNode->SuperName, "java/lang/Object");
+}
+
+TEST(AssemblerTests, SuperClass)
+{
+  auto cf = Jasmin::Assembler::Assemble(".super foobar");
+  EXPECT_EQ(cf.ConstPool.LookupString(cf.SuperClass).GetOrElse(""), "foobar");
 }
 
