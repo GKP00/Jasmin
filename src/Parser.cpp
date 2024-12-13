@@ -2,8 +2,6 @@
 
 #include <fmt/core.h>
 
-#include <iostream>
-
 namespace Jasmin
 {
 
@@ -32,11 +30,9 @@ bool Parser::HasMore() const
 
 NodePtr Parser::ParseNext()
 {
-  std::cerr << "parsenext\n";
   Token token;
   while( (token = peekNextToken()).Type == TT::Newline) 
   { 
-    std::cerr << "consume\n";
     consumeNextToken(); }
 
   if(token.IsDirective())
