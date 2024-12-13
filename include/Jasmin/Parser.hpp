@@ -14,6 +14,7 @@ class Parser
   public:
     Parser(const std::vector<Token>& tokens);
     Parser(Lexer lexer);
+    std::vector<NodePtr> ParseAll();
     static std::vector<NodePtr> ParseAll(const std::vector<Token>& tokens);
     static std::vector<NodePtr> ParseAll(const std::vector<Token>&& tokens);
 

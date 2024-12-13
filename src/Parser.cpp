@@ -8,15 +8,18 @@ namespace Jasmin
 Parser::Parser(const std::vector<Token>& ts): tokens{ts} {}
 Parser::Parser(Lexer lexer) : tokens{lexer.LexAll()} {}
 
-std::vector<NodePtr> Parser::ParseAll(const std::vector<Token>& tokens)
+std::vector<NodePtr> Parser::ParseAll()
 {
-  Parser parser{tokens};
-
   std::vector<NodePtr> nodes;
-  while(parser.HasMore())
-    nodes.emplace_back(parser.ParseNext());
+  while(HasMore())
+    nodes.emplace_back(ParseNext());
 
   return nodes;
+}
+
+std::vector<NodePtr> Parser::ParseAll(const std::vector<Token>& tokens)
+{
+  return Parser{tokens}.ParseAll();
 }
 
 std::vector<NodePtr> Parser::ParseAll(const std::vector<Token>&& tokens)
