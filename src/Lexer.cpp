@@ -121,18 +121,23 @@ Token Lexer::LexNext()
   return makeToken(TT::Symbol, std::move(tokenStr));
 }
 
+std::vector<Token> Lexer::LexAll()
+{
+  std::vector<Token> tokens;
+
+  while(HasMore())
+    tokens.emplace_back(LexNext());
+
+  if(tokens.back().Type != TT::Newline)
+    tokens.emplace_back(makeToken(TT::Newline));
+
+  return tokens;
+}
+
 std::vector<Token> Lexer::LexAll(InStream& in)
 {
   Lexer lexer{in};
-  std::vector<Token> tokens;
-
-  while(lexer.HasMore())
-    tokens.emplace_back(lexer.LexNext());
-
-  if(tokens.back().Type != TT::Newline)
-    tokens.emplace_back(lexer.makeToken(TT::Newline));
-
-  return tokens;
+  return lexer.LexAll();
 }
 
 std::vector<Token> Lexer::LexAll(InStream&& in)
@@ -140,7 +145,7 @@ std::vector<Token> Lexer::LexAll(InStream&& in)
   return Lexer::LexAll(in);
 }
 
-Lexer::Lexer(InStream& in)
+Lexer::Lexer(InStream in)
 : inputStream{in}
 {
 }

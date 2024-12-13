@@ -1,5 +1,7 @@
 #pragma once
 
+#include<string>
+#include<sstream>
 #include<istream>
 
 namespace Jasmin
@@ -8,6 +10,8 @@ namespace Jasmin
 class InStream
 {
   public:
+    InStream(std::string in) : InStream(std::stringstream{in}) {}
+    InStream(const char* in) : InStream(std::stringstream{in}) {}
     InStream(std::istream&& in) : InStream(in) {}
     InStream(std::istream& in) : inputStream{in} 
     {

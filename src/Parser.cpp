@@ -6,6 +6,7 @@ namespace Jasmin
 {
 
 Parser::Parser(const std::vector<Token>& ts): tokens{ts} {}
+Parser::Parser(Lexer lexer) : tokens{lexer.LexAll()} {}
 
 std::vector<NodePtr> Parser::ParseAll(const std::vector<Token>& tokens)
 {

@@ -80,7 +80,8 @@ std::ostream& operator<<(std::ostream&, const Token::TokenType&);
 class Lexer 
 {
   public:
-    Lexer(InStream& in);
+    Lexer(InStream in);
+    std::vector<Token> LexAll();
     static std::vector<Token> LexAll(InStream& in);
     static std::vector<Token> LexAll(InStream&& in);
 
@@ -133,7 +134,7 @@ class Lexer
     std::runtime_error logicError(std::string_view) const;
 
   private:
-    InStream& inputStream;
+    InStream inputStream;
 };
 
 } //namespace: Jasmin
